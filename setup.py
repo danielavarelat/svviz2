@@ -32,8 +32,9 @@ setup(
     install_requires=[
         "pysam>=0.10",
         "numpy>=1.11.1",
-        "pyfaidx",
-        "tqdm",
+        "pyfaidx>=0.5.5.2",
+        "pybind11>=2.2.4",
+        "tqdm>=4.31.1",
         "seqlib>=0.0.6",
     ],
     # python_requires=">=2.6",
