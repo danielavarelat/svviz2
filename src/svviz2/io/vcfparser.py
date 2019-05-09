@@ -168,7 +168,6 @@ def get_deletion(variant, datahub):
     # else:
     #     errstr = "Error parsing event: '{}' -- missing 'END' coordinate; is END defined in the VCF header?"
     #     raise IOError(errstr.format("{}:{}-{} ({})".format(variant.chrom, variant.start, variant.stop, variant)))
-
     deletion = variants.Deletion.from_breakpoints(
         variant.chrom, variant.start, variant.stop - 1, datahub, variant.id
     )
