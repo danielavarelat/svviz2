@@ -18,7 +18,7 @@ def get_version(string):
     return version_str
 
 
-extensions = [Extension("svviz2.remap._mapq", sources=["src/svviz2/remap/_mapq.pyx"])]
+# extensions = [Extension("svviz2.remap._mapq", sources=["src/svviz2/remap/_mapq.pyx"])]
 setup(
     name="svviz2",
     version=get_version(open("src/svviz2/__init__.py").read()),
@@ -26,7 +26,7 @@ setup(
     author="Noah Spies",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    ext_modules=extensions,
+    # ext_modules=extensions,
     setup_requires=["cython"],
     entry_points={"console_scripts": ["svviz2 = svviz2.app.main:main"]},
     install_requires=[
