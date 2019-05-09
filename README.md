@@ -10,14 +10,7 @@ This is a near complete rewrite of [svviz1](https://github.com/svviz/svviz). New
   - enables realignment against entire genome, identifying potential second-best hits
   - calculates a quantitative mapping quality score taking account of ref and alt hits genome-wide
   - uses weighted mapq scores to calculate evidence for ref and alt alleles, including genotype likelihoods
-- substantially improved visualizations
-  - "quick consensus" reduces background error rate in pacbio/nanopore and other long-read technologies
-  - optionally uses tandem repeat finder (trf) to identify tandem repeats near candidate SV
-  - visualization engine has been refactored into a separate [genomeview](https://github.com/nspies/genomeview) module, facilitating future improvements
-- integrated dotplots
-  - visualizes ref vs alt, allowing for visual identification of tandem repeats and other complex sequence
-  - if bwa is being used for realignment, visualizes any second-best hit regions against candidate SV locus
-  - if long-reads are provided as input, picks several long reads to plot as dotplots against ref and alt
+
 
 Installation
 ------------
@@ -65,8 +58,6 @@ Required arguments:
 Optional arguments:
   --outdir OUTDIR, -o OUTDIR
                         output directory for visualizations, summaries, etc (default: current working directory)
-  --format FORMAT       format for output visualizations; must be one of pdf, png or svg (default: pdf,
-                        or svg if no suitable converter is found)
   --savereads           output the read realignments against the appropriate alt or ref allele (default: false)
   --min-mapq MIN_MAPQ   only reads with mapq>=MIN_MAPQ will be analyzed; when analyzing paired-end data,
                         at least one read end must be near the breakpoints with this mapq (default:0)
@@ -93,16 +84,7 @@ Optional arguments:
   --last-variant LAST_VARIANT
                         Skip all variants after this variant; counting starts with first variant
                         in input VCF as 0 (default: end of vcf)
-  --render-only
-  --no-render
-  --dotplots-only
-  --no-dotplots
-  --report-only
+
+  --report
   --no-report
-  --only-plot-context ONLY_PLOT_CONTEXT
-                        Only show this many nucleotides before the first breakpoint, and the last breakpoint
-                        in each region (default: show as much context as needed to show all reads fully)
-  --also-plot-context ALSO_PLOT_CONTEXT
-                        Generates two plots per event, one using the default settings, and one generated
-                        by zooming in on the breakpoints as per the --only-plot-context option
 ```
