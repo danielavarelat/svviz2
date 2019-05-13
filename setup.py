@@ -67,7 +67,6 @@ setup(
         "pysam>=0.10",
         "numpy>=1.11.1",
         "pyfaidx>=0.5.5.2",
-        "pybind11>=2.2.4",
         "tqdm>=4.31.1",
         "seqlib>=0.0.6",
     ],
