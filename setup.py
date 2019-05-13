@@ -5,8 +5,8 @@ from setuptools.extension import Extension
 
 import sys
 
-# if sys.version_info < (3, 3):
-#     raise RuntimeError("Python version >= 3.3 required.")
+if sys.version_info < (3, 3):
+    raise RuntimeError("Python version >= 3.3 required.")
 
 
 def get_version(string):
@@ -18,7 +18,41 @@ def get_version(string):
     return version_str
 
 
-# extensions = [Extension("svviz2.remap._mapq", sources=["src/svviz2/remap/_mapq.pyx"])]
+def get_includes():
+    class Includes:
+        def __iter__(self):
+            import pysam
+            import numpy
+
+            return iter(pysam.get_include() + [numpy.get_include()])
+
+        def __getitem__(self, i):
+            return list(self)[i]
+
+    return Includes()
+
+
+def get_defines():
+    class Defines:
+        def __iter__(self):
+            import pysam
+
+            return iter(pysam.get_defines())
+
+        def __getitem__(self, i):
+            return list(self)[i]
+
+    return Defines()
+
+
+extensions = [
+    Extension(
+        "svviz2.remap._mapq",
+        sources=["src/svviz2/remap/_mapq.pyx"],
+        include_dirs=get_includes(),
+        define_macros=get_defines(),
+    )
+]
 setup(
     name="svviz2",
     version=get_version(open("src/svviz2/__init__.py").read()),
@@ -26,7 +60,7 @@ setup(
     author="Noah Spies",
     packages=find_packages("src"),
     package_dir={"": "src"},
-    # ext_modules=extensions,
+    ext_modules=extensions,
     setup_requires=["cython"],
     entry_points={"console_scripts": ["svviz2 = svviz2.app.main:main"]},
     install_requires=[
@@ -36,6 +70,6 @@ setup(
         "tqdm",
         "seqlib>=0.0.6",
     ],
-    # python_requires=">=2.6",
+    python_requires=">=3.3",
 )
 
