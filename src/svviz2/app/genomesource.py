@@ -1,5 +1,6 @@
 import collections
 import logging
+
 # import numpy
 import pyfaidx
 import seqlib
@@ -7,6 +8,7 @@ import sys
 import traceback
 
 from svviz2.utility import intervals, misc
+
 # from svviz2.remap import mapq
 from svviz2.remap import ssw_aligner
 from svviz2.remap.alignment import Alignment
@@ -17,48 +19,50 @@ try:
     from svviz2.remap import _mapq
 except:
     logger.error(traceback.format_exc())
-    logger.error("ERROR: Failed to import mapq module; this is almost certainly due to "
-                 "a version mismatch between the installed versions of svviz2 and pysam;"
-                 "try reinstalling svviz2")
+    logger.error(
+        "ERROR: Failed to import mapq module; this is almost certainly due to "
+        "a version mismatch between the installed versions of svviz2 and pysam;"
+        "try reinstalling svviz2"
+    )
     sys.exit()
 
 
-
 PARAMS = {
-    "illumina":{
-        "min_seed_length":19,
-        "min_chain_weight":0,
-        "gap_open":6,
-        "gap_extension":1,
-        "mismatch_penalty":4,
-        "3prime_clipping_penalty":5,
-        "5prime_clipping_penalty":5,
-        "reseed_trigger":1.5,
-        },
+    "illumina": {
+        "min_seed_length": 19,
+        "min_chain_weight": 0,
+        "gap_open": 6,
+        "gap_extension": 1,
+        "mismatch_penalty": 4,
+        "3prime_clipping_penalty": 5,
+        "5prime_clipping_penalty": 5,
+        "reseed_trigger": 1.5,
+    },
     "pacbio": {
-        "min_seed_length":17,
-        "min_chain_weight":40,
-        "gap_open":1,
-        "gap_extension":1,
-        "mismatch_penalty":1,
-        "3prime_clipping_penalty":0,
-        "5prime_clipping_penalty":0,
-        "reseed_trigger":10,
+        "min_seed_length": 17,
+        "min_chain_weight": 40,
+        "gap_open": 1,
+        "gap_extension": 1,
+        "mismatch_penalty": 1,
+        "3prime_clipping_penalty": 0,
+        "5prime_clipping_penalty": 0,
+        "reseed_trigger": 10,
     },
     "nanopore": {
-        "min_seed_length":14,
-        "min_chain_weight":20,
-        "gap_open":1,
-        "gap_extension":1,
-        "mismatch_penalty":1,
-        "3prime_clipping_penalty":0,
-        "5prime_clipping_penalty":0,
-        "reseed_trigger":10,
-    }
+        "min_seed_length": 14,
+        "min_chain_weight": 20,
+        "gap_open": 1,
+        "gap_extension": 1,
+        "mismatch_penalty": 1,
+        "3prime_clipping_penalty": 0,
+        "5prime_clipping_penalty": 0,
+        "reseed_trigger": 10,
+    },
 }
 
 ## These are pretty much identical to the versions in genomeview, but each method
 ## adds some functionality to deal with bwa/ssw alignment
+
 
 class GenomeSource:
     def __init__(self, names_to_contigs, aligner_type="bwa"):
@@ -71,7 +75,7 @@ class GenomeSource:
         self.max_base_quality = 40.0
 
     def get_seq(self, chrom, start, end, strand):
-        seq = self.names_to_contigs[chrom][start:end+1]
+        seq = self.names_to_contigs[chrom][start : end + 1]
         if strand == "-":
             seq = misc.reverse_comp(seq)
         return seq
@@ -89,7 +93,9 @@ class GenomeSource:
 
         for locus in blacklist_loci:
             cur_chrom = misc.match_chrom_format(locus.chrom, list(self.keys()))
-            self._blacklist.append(intervals.Locus(cur_chrom, locus.start, locus.end, locus.strand))
+            self._blacklist.append(
+                intervals.Locus(cur_chrom, locus.start, locus.end, locus.strand)
+            )
 
     def align(self, read):
         alns = []
@@ -108,15 +114,17 @@ class GenomeSource:
             aln._read.query_name = read.query_name
 
             # if self.blacklist is not None:
-                # print("....", aln.locus, self.blacklist, misc.overlaps(aln.locus, self.blacklist))
-            if self.blacklist is None or not intervals.overlaps(aln.locus, self.blacklist):
+            # print("....", aln.locus, self.blacklist, misc.overlaps(aln.locus, self.blacklist))
+            if self.blacklist is None or not intervals.overlaps(
+                aln.locus, self.blacklist
+            ):
                 aln.source = self
                 aln.chrom = self.keys()[aln.reference_id]
                 self.score_alignment(aln)
 
                 aln.set_tag("mq", read.mapq)
                 alns.append(aln)
-    
+
         return alns
 
     def score_alignment(self, aln):
@@ -125,9 +133,12 @@ class GenomeSource:
         # mc = mapq.MAPQCalculator(self)
         # aln.score = mc.get_alignment_end_score(aln)
 
-        ref_seq = self.get_seq(aln.chrom, aln.reference_start, aln.reference_end, "+").upper()
+        ref_seq = self.get_seq(
+            aln.chrom, aln.reference_start, aln.reference_end, "+"
+        ).upper()
         aln.score = _mapq.get_alignment_end_score(
-            aln._read, ref_seq, max_quality=self.max_base_quality)
+            aln._read, ref_seq, max_quality=self.max_base_quality
+        )
         # aln.score = s2
 
         # assert numpy.isclose(aln.score, s2, rtol=1e-5), "{} :: {}".format(aln.score, s2)
@@ -194,17 +205,18 @@ class GenomeSource:
 
 class FastaGenomeSource(GenomeSource):
     """ pickle-able wrapper for pyfaidx.Fasta """
+
     def __init__(self, path, aligner_type="bwa"):
         self.path = path
         self._fasta = None
         self._bwa = None
         self._blacklist = None
         self.aligner_type = aligner_type
-        
+
     def get_seq(self, chrom, start, end, strand):
         chrom = misc.match_chrom_format(chrom, list(self.fasta.keys()))
 
-        seq = self.fasta[chrom][start:end+1]
+        seq = self.fasta[chrom][start : end + 1]
         if strand == "-":
             seq = misc.reverse_comp(seq)
         return seq
@@ -222,13 +234,13 @@ class FastaGenomeSource(GenomeSource):
     def bwa(self):
         if self._bwa is None:
             logger.info("Loading bwa index from file {}...".format(self.path))
-            
+
             self._bwa = seqlib.BWAWrapper()
             result = self._bwa.loadIndex(self.path)
 
             if not result:
                 raise IOError("Failed to load bwa index from file {}".format(self.path))
-            
+
             logger.info("Loading bwa index done.")
 
         return self._bwa

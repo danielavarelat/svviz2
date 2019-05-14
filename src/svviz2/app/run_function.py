@@ -8,6 +8,7 @@ import numpy
 import os
 import pandas as pd
 import itertools as it
+from pysam import VariantFile
 
 
 from svviz2.app import commandline
@@ -19,7 +20,7 @@ logging.basicConfig(format=FORMAT, level=logging.DEBUG, datefmt=DATEFMT)
 logger = logging.getLogger(__name__)
 
 
-def report_sv(datahub):
+def report(datahub):
     results = []
     results.extend(tally_support(datahub))
     print("RESULTS")
@@ -53,7 +54,7 @@ def report_sv(datahub):
     return report_path
 
 
-def report_sample(datahub):
+def report_option2(datahub):
     results = []
     results.extend(tally_support(datahub))
     print(results)
@@ -91,7 +92,29 @@ def _tally_support(bam):
 
 
 def get_datahub():
-    args = commandline.parse_args(sys.argv[1:])
+    args = Namespace(
+        align_distance=None,
+        aligner="bwa",
+        bam=[
+            "/ifs/res/leukgen/local/opt/leukdc/data/workflows/25/37/42537/data/bam/I-H-134709-T2-1-D1-1.bam",
+            # "/home/varelad/data/I-H-134709-T1-1-D1-1.bam",
+            # "/home/varelad/data/I-H-134709-T2-1-D1-1.bam",
+            # "/home/varelad/data/I-H-134709-T3-1-D1-1.bam",
+            # "/home/varelad/data/I-H-134709-T4-1-D1-1.bam",
+        ],
+        batch_size=10000,
+        downsample=None,
+        fast=False,
+        first_variant=None,
+        last_variant=None,
+        min_mapq=None,
+        no_report=False,
+        outdir="/home/varelad/testing",
+        ref="/work/isabl/ref/homo_sapiens/GRCh37d5/genome/gr37.fasta",
+        report=True,
+        savereads=False,
+        variants="/home/varelad/subset_709_copy.vcf",
+    )
     datahub = DataHub()
     datahub.set_args(args)
     datahub.align_distance = 0
@@ -123,7 +146,7 @@ def run(datahub):
             t1 = time.time()
             print("TIME:::", t1 - t0)
         if datahub.should_generate_reports:
-            path = report_sv(datahub)
+            path = report(datahub)
         list_reports.append(path)
         with open(file_name_reports, "w") as f:
             for item in list_reports:
@@ -132,7 +155,7 @@ def run(datahub):
 
 
 ###paralellization by sample
-def run_sample(datahub):
+def run_option2(datahub):
     """ this runs the app on the provided datahub """
     list_reports = []
     for variant in datahub.get_variants():
@@ -142,7 +165,7 @@ def run_sample(datahub):
             t1 = time.time()
             print("TIME:::", t1 - t0)
         if datahub.should_generate_reports:
-            result_variant, sample_name = report_sample(datahub)
+            result_variant, sample_name = report_option2(datahub)
             result_variant["event"] = variant.name
         list_reports.append(result_variant)
         print(list_reports)
@@ -155,9 +178,10 @@ def run_sample(datahub):
     datahub.cleanup()
 
 
-def main():
-    """ entry point from command line """
-    datahub = get_datahub()
-    run_sample(datahub)
-    print("DONE")
+# for sv in VariantFile("/home/varelad/subset_709.vcf").fetch():
+#     datahub = get_datahub(sv)
+#     run(datahub)
+#     print("DONE")
 
+datahub = get_datahub()
+run_option2(datahub)

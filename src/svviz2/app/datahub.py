@@ -174,13 +174,6 @@ class DataHub(object):
                 continue
 
             logger.info("Working on variant {}: {}".format(count, variant))
-
-            # for allele in ["alt", "ref"]:
-            #     print(f"{allele }"*10)
-            #     print(variant.segments(allele))
-            #     # for part, seq in variant.seqs(allele).items():
-            #         # print(f"{allele }"*10)
-            #         # print(seq)
             good_variants += 1
             self.set_cur_variant(variant)
             yield variant
@@ -302,11 +295,13 @@ class DataHub(object):
                     hap_name = "{}_hap{}".format(name, hap)
                     if hap is None:
                         hap_name = "{}_hap-unknown".format(name)
-                    sample = Sample(hap_name, bam_path, self, extra_args)
+                    sample = Sample(
+                        hap_name, bam_path, self.args.outdir, self, extra_args
+                    )
                     sample.read_filter = read_filters.get_haplotype_filter(hap)
                     self.samples[hap_name] = sample
             else:
-                sample = Sample(name, bam_path, self, extra_args)
+                sample = Sample(name, bam_path, self.args.outdir, self, extra_args)
                 self.samples[name] = sample
 
         if self.args.no_report:
