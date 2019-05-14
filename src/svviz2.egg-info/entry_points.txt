@@ -1,0 +1,3 @@
+[console_scripts]
+svviz2 = svviz2.app.main:main
+
