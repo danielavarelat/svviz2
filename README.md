@@ -82,7 +82,7 @@ Example command for just one sample:
 
 Recommendation
 -----
-If the installation present problems with installation, it is recommended to run this modified tool using a built container for https://github.com/papaemmelab/toil_circosigv.
+If problems when installing dependencies, it is recommended to run this modified tool using a built container for https://github.com/papaemmelab/toil_circosigv.
 
 ```
 Command with singularity:
