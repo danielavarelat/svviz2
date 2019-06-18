@@ -1,39 +1,18 @@
 # svviz2
 
-[![Build Status](https://travis-ci.org/nspies/svviz2.svg?branch=master)](https://travis-ci.org/nspies/svviz2)
+This is a forked repo from (https://github.com/nspies/svviz2). 
 
-
-This is a near complete rewrite of [svviz1](https://github.com/svviz/svviz). New features:
-
-- uses [bwa mem](https://github.com/lh3/bwa) under the hood for realignments
-  - substantial improvements in reliability and speed when realigning long reads
-  - enables realignment against entire genome, identifying potential second-best hits
-  - calculates a quantitative mapping quality score taking account of ref and alt hits genome-wide
-  - uses weighted mapq scores to calculate evidence for ref and alt alleles, including genotype likelihoods
-
+Modified to get just the read count information in a report per sample as svviz2 does not natively support parallelization.
 
 Installation
 ------------
+svviz2 requires **python 3.3** or greater. 
 
-svviz2 requires **python 3.3** or greater. To perform tandem repeat detection, download [tandem repeats finder](http://tandem.bu.edu/trf/trf.download.html), rename the binary to "trf" and move it into your `PATH`. To visualize the dotplots, the [rpy2](https://rpy2.bitbucket.io) package must be installed. To convert visualizations to pdf format, either [inkscape](https://inkscape.org/), [rsvg-convert](https://github.com/GNOME/librsvg) or (macOS only) [webkitToPDF](https://github.com/nspies/webkitToPDF) must be installed into your `PATH`.
-
-To install, run the following command, ideally from within a virtualenv:
-```
-pip install -U git+git://github.com/nspies/svviz2.git
-```
-
-A few more notable changes with respect to version 1.x
-------------------------------------------------------
-
-- variants are input in VCF format; please create an issue if you find a well-defined variant that is not supported by the current version of svviz2
-- VCF files must more or less conform to the spec -- svviz2 uses pysam which uses htslib to load VCF files
-
-Note that svviz2 does not natively support parallelization. You are probably best off parallelizing over variants (or samples). One simple way to do this is using the `--first-variant` and `--last-variant options`. If it appears that svviz2 is using more than 1 core during realignment, it may be because numpy can in some circumstances use multiple threads (see [here](https://stackoverflow.com/questions/30791550/limit-number-of-threads-in-numpy/31622299#31622299) to deactivate this behavior).
 
 Documentation
 -------------
 
-More in-depth documentation is available at [https://svviz2.readthedocs.io](https://svviz2.readthedocs.io).
+More in-depth documentation of the original svviz2 is available at [https://svviz2.readthedocs.io](https://svviz2.readthedocs.io).
 
 Usage
 -----
@@ -86,5 +65,27 @@ Optional arguments:
                         in input VCF as 0 (default: end of vcf)
 
   --report
+  
   --no-report
 ```
+
+
+```
+Example command for just one sample:
+
+    svviz2 {~/sample.bam} 
+    --ref {~/gr37.fasta}
+    --variants {~/file.vcf}
+    --outdir {outdir} 
+    --report
+```
+
+Recommendation
+-----
+If the installation present problems with installation, it is recommended to run this modified tool using a built container for https://github.com/papaemmelab/toil_circosigv.
+
+```
+Command with singularity:
+    singularity exec --bind /home,/ifs,/work  {singularity_image.img} svviz2 ...
+```
+ 
